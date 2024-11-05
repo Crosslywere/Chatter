@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1, width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <title>Register</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row" style="min-height:100vh">
+            <div class="col-md-5 col-sm-8 mx-auto my-auto">
+                <form action="#" th:action="@{/register}" th:object="${registrationDetails}" method="post">
+                    <fieldset class="mb-1">
+                        <legend class="text-center fs-1 mb-5">Register</legend>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="username" th:field="*{username}" class="form-control">
+                            <span class="form-text text-end" id="available-message"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" th:field="*{password}" class="form-control" minlength="8">
+                            <span class="form-text text-end">Must be a minimum of 8 characters long</span>
+                        </div>
+                    </fieldset>
+                    <p th:if="${error ne null}" th:text="${error}" class="text-danger text-center">An error occurred!</p>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary">Register & Login</button>
+                    </div>
+                    <p class="text-center">Already have an account?<br>Sign in <a th:href="@{/login}" tabindex="-1" class="text-primary-emphasis text-decoration-none fw-medium">here</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/sockjs.min.js}"></script>
+    <script th:src="@{/js/stomp.min.js}"></script>
+    <script type="text/javascript">
+        let stompClient = null;
+        const warning = document.getElementById('available-message');
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function () {
+                stompClient.subscribe('/topic/username-availability', function(message) {
+                    const response = JSON.parse(message.body);
+                    if (response.available) {
+                        warning.classList.add('text-success');
+                        warning.classList.remove('text-danger');
+                    } else {
+                        warning.classList.add('text-danger');
+                        warning.classList.remove('text-success');
+                    }
+                    warning.innerHTML = response.message;
+                });
+            });
+        }
+        function checkUsernameAvailability(username) {
+            stompClient.send("/app/check-username", {}, JSON.stringify({'username': username}));
+        }
+        document.addEventListener("DOMContentLoaded", connect);
+        const username = document.getElementById('username');
+		username.addEventListener('change', () => {
+             checkUsernameAvailability(username.value);
+        });
+
+        // let socket = null;
+        // const warning = document.getElementById('available-message');
+        // function connect() {
+        //     socket = new WebSocket('ws://' + window.location.host + '/ws/topic/check-username');
+
+        //     socket.onopen = function() {
+        //         console.log('Connection established');
+        //     };
+
+        //     socket.onmessage = function(ev) {
+        //         const response = JSON.parse(event.data);
+        //         if (!response.available) {
+        //             warning.classList.add('text-danger');
+        //             warning.classList.remove('text-success');
+        //         } else {
+        //             warning.classList.add('text-success');
+        //             warning.classList.remove('text-danger');
+        //         }
+        //         warning.innerHTML = response.message;
+        //     };
+
+        //     socket.onerror = function (error) {
+        //         console.error('WebSocket error:', error);
+        //     };
+
+        //     socket.onclose = function () {
+        //         console.log('Connection lost');
+        //     }
+        // }
+        // function checkUsernameAvailability(username) {
+        //     if (socket && socket.readyState === WebSocket.OPEN) {
+        //         const message = JSON.stringify({'username': username});
+        //         socket.send(message);
+        //     } else {
+        //         alert("WebSocket is not open. Please reload the page!");
+        //     }
+        // }
+        // document.addEventListener("DOMContentLoaded", connect);
+        // const username = document.getElementById('username');
+        // username.addEventListener('change', () => {
+        //     checkUsernameAvailability(username.value);
+        // });
+    </script>
+</body>
+</html>

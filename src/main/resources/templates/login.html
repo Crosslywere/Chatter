@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1, width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <title>Login</title>
+</head>
+<body>
+    <div class="container-md">
+        <div class="row" style="min-height:100vh">
+            <div class="col-md-5 col-sm-8 mx-auto my-auto">
+                <form action="#" th:action="@{/login}" th:object="${loginDetails}" method="post">
+                    <fieldset class="mb-1">
+                        <legend class="text-center fs-1 mb-5">Login</legend>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="username" class="form-control" th:field="*{username}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" class="form-control" th:field="*{password}" required>
+                        </div>
+                    </fieldset>
+                    <p th:if="${error ne null}" th:text="${error}" class="text-danger text-center">An error occurred!</p>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                    <p class="text-center">Don't have an account?<br>Sign up <a th:href="@{/register}" tabindex="-1" class="text-primary-emphasis text-decoration-none fw-medium">here</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
